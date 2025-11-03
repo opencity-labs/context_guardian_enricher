@@ -4,7 +4,7 @@
     "description": "Ensuring responses stay within knowledge base while enriching messages with source links, UTM tracking, and panic button functionality.",
     "author_name": "OpenCity Labs",
     "author_url": "https://opencitylabs.it/",
-    "plugin_url": "https://github.com/my_name/context_guardian_enricher",
+    "plugin_url": "https://github.com/opencity-labs/context_guardian_enricher",
     "tags": "memory, sources, metadata, context",
-    "thumb": "https://raw.githubusercontent.com/my_repo_path/context_guardian_enricher.png"
+    "thumb": "https://raw.githubusercontent.com/opencity-labs/context_guardian_enricher/refs/heads/main/context_guardian_enricher.png"
 }
