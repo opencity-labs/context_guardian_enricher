@@ -1,6 +1,6 @@
 {
     "name": "Context Guardian & Enricher",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Ensuring responses stay within knowledge base while enriching messages with source links, UTM tracking, and panic button functionality.",
     "author_name": "OpenCity Labs",
     "author_url": "https://opencitylabs.it/",

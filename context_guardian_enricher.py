@@ -18,7 +18,10 @@ def add_utm_tracking_to_url(url: str, utm_source: str) -> str:
     Returns:
         The URL with UTM tracking added (if applicable)
     """
-        
+
+    if not utm_source:  # Skip UTM tracking if utm_source is empty
+        return url
+
     parsed: ParseResult = urlparse(url)
     query_params: Dict[str, List[str]] = parse_qs(parsed.query)
 
@@ -101,7 +104,7 @@ def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
     return None
 
 @hook
-def before_cat_reads_message(user_message_json: Dict[str, Any], _: StrayCat) -> Dict[str, Any]:
+def before_cat_reads_message(user_message_json: Dict[str, Any], cat: StrayCat) -> Dict[str, Any]:
     """
     Hook to modify user message before cat reads it.
     Appends current time to the user message.
