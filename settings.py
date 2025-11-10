@@ -1,5 +1,5 @@
 from cat.mad_hatter.decorators import plugin
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class ContextGuardianEnricherSettings(BaseModel):
@@ -12,6 +12,11 @@ class ContextGuardianEnricherSettings(BaseModel):
         title="UTM Source",
         default="",
         description="UTM source parameter to add to outgoing links for tracking. Leave empty to disable UTM tracking.",
+    )
+    min_query_length: int = Field(
+        title="Minimum Query Length",
+        default=10,
+        description="Minimum number of characters a query must have to be accepted for processing",
     )
     default_message: str = Field(
         title="Default Message",
@@ -30,6 +35,13 @@ class ContextGuardianEnricherSettings(BaseModel):
         description="The text to return when panic button mode is enabled",
         extra={"type": "TextArea"}
     )
+
+    @validator('min_query_length')
+    def validate_min_query_length(cls, v):
+        """Validate that min_query_length is non-negative"""
+        if not v >= 0:
+            raise ValueError('Minimum query length must be non-negative')
+        return v
 
 
 @plugin

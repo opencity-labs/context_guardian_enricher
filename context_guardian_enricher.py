@@ -48,15 +48,30 @@ def enrich_links_with_utm(text: str, utm_source: str = "") -> str:
     """
     if not utm_source:  # Skip UTM tracking if utm_source is empty
         return text
-        
-    def replace_url(match: re.Match[str]) -> str:
+    
+    # Step 1: Transform plain text URLs to markdown format [url](url)
+    # This regex matches URLs that are NOT already part of markdown links
+    # Uses negative lookbehind to avoid URLs preceded by ]( and \S+ to match any non-whitespace URL
+    plain_url_pattern: str = r'(?<!\]\()https?://\S+'
+    
+    def convert_to_markdown(match: re.Match[str]) -> str:
+        url: str = match.group(0)
+        return f'[{url}]({url})'
+    
+    # Convert plain URLs to markdown format
+    text = re.sub(plain_url_pattern, convert_to_markdown, text)
+    
+    # Step 2: Add UTM tracking to URLs in markdown links
+    def replace_url_in_markdown(match: re.Match[str]) -> str:
         url: str = match.group(0)
         return add_utm_tracking_to_url(url, utm_source)
     
-    # Improved regex: matches URLs with optional ports, paths, queries, fragments; excludes ) to handle markdown links
-    url_pattern: str = r'https?://(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d+)?(?:/[^\s?#)]*)?(?:\?[^\s#)]*)?(?:#[^\s)]*)?'
+    # This regex matches URLs inside markdown links (within parentheses after ])
+    # Uses lookbehind (?<=\]\() and lookahead (?=\)) to ensure we're inside markdown link parentheses
+    # [^)]+ matches any character except ) which is perfect since we're bounded by the assertions
+    markdown_url_pattern: str = r'(?<=\]\()https?://[^)]+(?=\))'
     
-    return re.sub(url_pattern, replace_url, text)
+    return re.sub(markdown_url_pattern, replace_url_in_markdown, text)
 
 @hook
 def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
@@ -79,8 +94,14 @@ def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
         cat.recall_relevant_memories_to_working_memory()
         
         panic_text: str = settings.get('panic_button_text', "Sorry, I'm under maintenance right now. Please try again later.")
-        message: CatMessage = CatMessage(user_id=cat.user_id, text=panic_text)
-        return message
+        return CatMessage(user_id=cat.user_id, text=panic_text)
+
+    # return default message if the length of the user query is less than minimum length
+    min_query_length: int = settings.get('min_query_length', 10)
+    user_query: str = cat.working_memory.user_message_json.text.strip()
+    if len(user_query) < min_query_length:
+        default_message: str = settings.get('default_message', 'Sorry, I can\'t help you.')
+        return CatMessage(user_id=cat.user_id, text=default_message)
 
     # Regular source enricher behavior
     cat.recall_relevant_memories_to_working_memory()
@@ -94,10 +115,10 @@ def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
     if hasattr(cat.working_memory, 'active_form'):
         form_ongoing = cat.working_memory.active_form is not None
 
-    log.info(f"Form ongoing: {form_ongoing}")
+    # log.info(f"Form ongoing: {form_ongoing}")
 
     if not has_declarative_context and not form_ongoing:
-        log.warning("No relevant memories (declarative or procedural) found for the user query.")
+        # log.warning("No relevant memories (declarative or procedural) found for the user query.")
         default_message: str = settings.get('default_message', 'Sorry, I can\'t help you.')
         return CatMessage(user_id=cat.user_id, text=default_message)
 

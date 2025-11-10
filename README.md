@@ -37,6 +37,8 @@ The plugin provides four core functionalities:
 
 - **`default_message`**: *(Text Area, default: "Sorry, I can't help you. To answer adequately: • Write short, complete sentences • Express one request at a time")* - The message returned when no relevant context is found in the knowledge base.
 
+- **`min_query_length`**: *(int, default: 10)* - Minimum number of characters a query must have to be accepted for processing.
+
 - **`panic_button_enabled`**: *(Boolean, default: False)* - Enable panic button mode that always returns the panic button text regardless of context or available knowledge. When enabled, takes priority over all other functionality.
 
 - **`panic_button_text`**: *(Text Area, default: "Sorry, I'm under maintenance right now. Please try again later.")* - The message returned when panic button mode is enabled.
