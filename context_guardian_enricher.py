@@ -92,16 +92,13 @@ def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
     # Check if panic button is enabled - if so, return immediately with panic text
     if settings.get('panic_button_enabled', False):
         cat.recall_relevant_memories_to_working_memory()
-        
-        panic_text: str = settings.get('panic_button_text', "Sorry, I'm under maintenance right now. Please try again later.")
-        return CatMessage(user_id=cat.user_id, text=panic_text)
+        return CatMessage(user_id=cat.user_id, text=settings.get('panic_button_text', "Sorry, I'm under maintenance right now. Please try again later."))
 
     # return default message if the length of the user query is less than minimum length
     min_query_length: int = settings.get('min_query_length', 10)
     user_query: str = cat.working_memory.user_message_json.text.strip()
     if len(user_query) < min_query_length:
-        default_message: str = settings.get('default_message', 'Sorry, I can\'t help you.')
-        return CatMessage(user_id=cat.user_id, text=default_message)
+        return CatMessage(user_id=cat.user_id, text=settings.get('default_message', 'Sorry, I can\'t help you.'))
 
     # Regular source enricher behavior
     cat.recall_relevant_memories_to_working_memory()
@@ -115,12 +112,8 @@ def fast_reply(_: Dict[str, Any], cat: StrayCat) -> Optional[CatMessage]:
     if hasattr(cat.working_memory, 'active_form'):
         form_ongoing = cat.working_memory.active_form is not None
 
-    # log.info(f"Form ongoing: {form_ongoing}")
-
     if not has_declarative_context and not form_ongoing:
-        # log.warning("No relevant memories (declarative or procedural) found for the user query.")
-        default_message: str = settings.get('default_message', 'Sorry, I can\'t help you.')
-        return CatMessage(user_id=cat.user_id, text=default_message)
+        return CatMessage(user_id=cat.user_id, text=settings.get('default_message', 'Sorry, I can\'t help you.'))
 
     return None
 
