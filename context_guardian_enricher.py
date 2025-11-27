@@ -108,8 +108,8 @@ def cat_recall_query(user_message: str, cat: StrayCat) -> str:
             if hasattr(msg, 'text') and msg.text.strip():
                 # Clean up message text (remove timestamp info that was added in before_cat_reads_message)
                 clean_text = msg.text
-                if "\n\nCurrent time:" in clean_text:
-                    clean_text = clean_text.split("\n\nCurrent time:")[0]
+                if "\n\ncurrent time:" in clean_text:
+                    clean_text = clean_text.split("\n\ncurrent time:")[0]
                 enhanced_query_parts.append(clean_text.strip())
     
     # Add current message
@@ -190,7 +190,7 @@ def before_cat_reads_message(user_message_json: Dict[str, Any], cat: StrayCat) -
     # append "current time" to user message
     from datetime import datetime
     current_time: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    user_message_json.text += f"\n\nCurrent time: {current_time}"
+    user_message_json.text += f"\n\ncurrent time: {current_time}"
     return user_message_json
 
 
